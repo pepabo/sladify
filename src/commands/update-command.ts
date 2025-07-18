@@ -2,6 +2,33 @@ import { BaseCommandHandler } from '../services/command-handler.js';
 import { CommandError } from '../types/index.js';
 
 export class UpdateCommand extends BaseCommandHandler {
+  /**
+   * ツールにファイルフィールドが含まれているかチェック
+   */
+  private hasFileField(tool: any): boolean {
+    if (!tool.inputSchema) return false;
+    
+    try {
+      const schema = typeof tool.inputSchema === 'string' 
+        ? JSON.parse(tool.inputSchema) 
+        : tool.inputSchema;
+      
+      const properties = schema.properties || {};
+      
+      for (const [key, prop] of Object.entries(properties)) {
+        const p = prop as any;
+        // fileキー、fileタイプ、またはタイプが未定義の場合
+        if (key === 'file' || p.type === 'file' || (!p.type && key.toLowerCase().includes('file'))) {
+          return true;
+        }
+      }
+    } catch {
+      // パースエラーの場合はfalse
+    }
+    
+    return false;
+  }
+
   async execute(): Promise<void> {
     await this.withErrorHandling(async () => {
       const { name } = this.context.parsed;
@@ -17,6 +44,16 @@ export class UpdateCommand extends BaseCommandHandler {
       const client = this.createMCPClient(server.endpoint);
       await client.initialize();
       const newTools = await client.listTools();
+
+      // ファイルフィールドのチェック
+      for (const tool of newTools) {
+        if (this.hasFileField(tool)) {
+          throw new CommandError(
+            `ツール「${tool.name}」にファイルフィールドが含まれています。\n` +
+            `DifyのMCPサーバーはファイルアップロードに対応していません。`
+          );
+        }
+      }
 
       // 既存のツールを削除して新規作成
       await this.prisma.mCPTool.deleteMany({

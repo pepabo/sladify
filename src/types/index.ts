@@ -18,6 +18,10 @@ export interface CommandContext {
   event: AppMentionEvent;
   say: SayFn;
   parsed: ParsedCommand;
+  client?: any;
+  channel?: string;
+  user?: string;
+  ts?: string;
 }
 
 // MCP関連の型定義

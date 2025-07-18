@@ -1,42 +1,101 @@
-# Sladify
+# Sladify - Slack Bot for Dify MCP Integration
 
-SlackからDifyのワークフローを実行するボット
+SlackからDifyワークフローをインタラクティブに実行できるボットです。
 
-## セットアップ
+## 機能
 
-### 1. Slack App作成
+### インタラクティブUI
+- **自動フォーム生成**: Difyワークフローの入力フィールドに基づいて、Slack用のフォームを自動生成
+- **スマートなUX**: 引数なしで実行するとフォーム表示、引数ありでダイレクト実行
+- **豊富な入力タイプサポート**:
+  - 短文（text-input）: 最大256文字の1行入力
+  - 段落（paragraph）: 最大1024文字の複数行入力
+  - 数値（number）: 整数・小数の入力、範囲指定可能
+  - 選択（select）: ドロップダウンから選択
+  - ファイル（file/file-list）: ファイルアップロード対応
 
-1. https://api.slack.com/apps で「Create New App」→「From an app manifest」
-2. `manifest.yml`の内容を貼り付けて作成
-3. 「Install to Workspace」でインストール
-4. App-Level Tokenを生成（scope: `connections:write`）
-
-### 2. 環境設定
-
-```bash
-cp .env.example .env
-# SLACK_BOT_TOKEN と SLACK_APP_TOKEN を設定
-```
-
-### 3. 起動
-
-```bash
-pnpm install
-pnpm prisma:migrate
-pnpm dev
-```
+### バリデーション
+- 必須フィールドチェック
+- 文字数制限
+- 数値範囲チェック
+- ファイルタイプ・サイズ検証
+- リアルタイムエラー表示
 
 ## 使い方
 
-```
-@sladify add weather https://api.dify.ai/mcp/server/xxx/mcp
-@sladify weather 東京の天気
-```
-
-## デプロイ (Fly.io)
-
+### 基本コマンド
 ```bash
-fly launch
-fly secrets set SLACK_BOT_TOKEN=xxx SLACK_APP_TOKEN=xxx
-fly deploy
+# MCPサーバー登録
+@sladify add weather https://api.dify.ai/v1/workflows/xxx
+
+# ワークフロー一覧
+@sladify list
+
+# インタラクティブ実行（フォーム表示）
+@sladify weather
+
+# ダイレクト実行（引数指定）
+@sladify weather location=Tokyo units=celsius
 ```
+
+### セットアップ
+
+1. 環境変数の設定
+```bash
+cp .env.example .env
+# 以下を編集
+SLACK_BOT_TOKEN=xoxb-xxx
+SLACK_APP_TOKEN=xapp-xxx
+DATABASE_URL=file:./data/sladify.db
+DIFY_API_KEY=app-xxx
+DIFY_BASE_URL=https://api.dify.ai/v1
+```
+
+2. 依存関係インストール
+```bash
+npm install
+```
+
+3. データベースセットアップ
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+4. 起動
+```bash
+npm run dev
+```
+
+## アーキテクチャ
+
+### 主要コンポーネント
+- **InteractiveUIBuilder**: Slack Block Kit形式のフォーム生成
+- **DifyMetadataClient**: Difyワークフローのメタデータ取得
+- **ValidationService**: 入力値の検証
+- **FileUploadHandler**: ファイルアップロード処理
+- **SlackInteractionHandler**: ボタンクリックなどのインタラクション処理
+
+### テスト
+```bash
+# テスト実行
+npm run test
+
+# カバレッジ付き
+npm run test:coverage
+```
+
+## 開発状況
+
+✅ 実装済み
+- Slack Block KitによるインタラクティブUI
+- Difyワークフローメタデータ連携
+- 全入力タイプのサポート
+- バリデーション機能
+- ファイルアップロード処理
+- E2Eテスト
+
+🚧 今後の予定
+- Dify実際のAPIエンドポイント確認
+- ストリーミングレスポンスの改善
+- 複数ワークフローの同時実行サポート

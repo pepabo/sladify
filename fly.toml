@@ -1,15 +1,12 @@
 app = 'sladify'
 primary_region = 'nrt'
 
-[env]
-  NODE_ENV = 'production'
-
 [[mounts]]
   source = 'sladify_data'
   destination = '/data'
 
 [processes]
-  app = "sh -c 'pnpm prisma migrate deploy; exec node dist/index.js'"
+  app = "sh -c 'npx prisma migrate deploy; exec node dist/index.js'"
 
 [[vm]]
   memory = '256mb'

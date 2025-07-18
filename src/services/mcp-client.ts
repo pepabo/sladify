@@ -44,6 +44,8 @@ export class MCPClient {
   }
 
   async *executeTool(name: string, args: Record<string, any>): AsyncGenerator<MCPEvent> {
+    
+    // MCPエンドポイントをそのまま使用（Dify MCPサーバーが適切なルーティングを行う）
     const response = await this.request('tools/call', {
       name,
       arguments: args,
@@ -53,18 +55,24 @@ export class MCPClient {
   }
 
   private async request(method: string, params: any): Promise<Response> {
+    const requestBody = {
+      jsonrpc: '2.0',
+      method,
+      params: {
+        ...params,
+        user: this.config.userId // Dify MCPサーバーにユーザーIDを含める
+      },
+      id: Date.now(),
+    };
+    
+    
     const response = await fetch(this.config.endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'text/event-stream',
       },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method,
-        params,
-        id: Date.now(),
-      }),
+      body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(this.config.timeout || 30000),
     });
 
@@ -134,6 +142,7 @@ export class MCPClient {
             try {
               const data = JSON.parse(line.slice(6));
               
+              
               if (data.error) {
                 yield { type: 'error', error: data.error.message };
                 return;
@@ -142,8 +151,58 @@ export class MCPClient {
               // Difyのレスポンス形式に基づいて処理
               if (data.event === 'workflow_finished') {
                 yield { type: 'complete' };
+              } else if (data.event === 'message') {
+                yield { type: 'chunk', data: data.answer || data.data || data.message };
+              } else if (data.event === 'node_finished') {
+                // ノード完了時の出力を取得
+                if (data.data?.outputs?.output) {
+                  yield { type: 'chunk', data: data.data.outputs.output };
+                } else if (data.data?.outputs?.text) {
+                  yield { type: 'chunk', data: data.data.outputs.text };
+                } else if (data.data?.outputs) {
+                  // outputs内の最初の値を取得
+                  const outputValues = Object.values(data.data.outputs);
+                  if (outputValues.length > 0) {
+                    yield { type: 'chunk', data: String(outputValues[0]) };
+                  }
+                }
+              } else if (data.event === 'text-chunk' && data.data?.text) {
+                // テキストチャンクイベント
+                yield { type: 'chunk', data: data.data.text };
               } else if (data.answer) {
                 yield { type: 'chunk', data: data.answer };
+              } else if (data.message) {
+                yield { type: 'chunk', data: data.message };
+              } else if (data.data?.text) {
+                yield { type: 'chunk', data: data.data.text };
+              } else if (data.result) {
+                // MCPの標準的な結果形式
+                if (data.result.content && Array.isArray(data.result.content)) {
+                  // content配列からテキストを抽出
+                  for (const item of data.result.content) {
+                    if (item.type === 'text' && item.text) {
+                      try {
+                        // ネストされたJSONをパース
+                        const parsed = JSON.parse(item.text);
+                        if (parsed.text) {
+                          yield { type: 'chunk', data: parsed.text };
+                        } else {
+                          yield { type: 'chunk', data: item.text };
+                        }
+                      } catch {
+                        // JSONパースに失敗した場合はそのまま使用
+                        yield { type: 'chunk', data: item.text };
+                      }
+                    }
+                  }
+                } else {
+                  yield { type: 'chunk', data: JSON.stringify(data.result) };
+                }
+              }
+              
+              // エラーレスポンスを詳細にログ
+              if (data.code && data.code !== 200) {
+                console.error('Dify error response:', JSON.stringify(data, null, 2));
               }
             } catch {
               // 無効なJSONは無視
