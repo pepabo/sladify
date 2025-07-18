@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model MCPServer {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  endpoint  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tools     MCPTool[]
+
+  @@map("mcp_servers")
+}
+
+model MCPTool {
+  id          String    @id @default(cuid())
+  serverId    String
+  server      MCPServer @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  inputSchema String?   // ツールの入力パラメータスキーマ（JSON文字列）
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([serverId, name])
+  @@map("mcp_tools")
+}

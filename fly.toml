@@ -1,0 +1,20 @@
+app = 'sladify'
+primary_region = 'nrt'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  NODE_ENV = 'production'
+
+[[mounts]]
+  source = 'sladify_data'
+  destination = '/data'
+
+[processes]
+  app = "sh -c 'pnpm prisma migrate deploy; exec node dist/index.js'"
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

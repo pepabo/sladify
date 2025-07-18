@@ -1,0 +1,50 @@
+{
+  "name": "sladify",
+  "version": "1.0.0",
+  "description": "Slack bot for Dify MCP integration",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:migrate:prod": "prisma migrate deploy"
+  },
+  "keywords": [
+    "slack",
+    "bot",
+    "dify",
+    "mcp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.6.0",
+    "@prisma/adapter-libsql": "^5.4.0",
+    "@prisma/client": "^5.4.0",
+    "@slack/bolt": "^4.0.0",
+    "@slack/types": "^2.15.0",
+    "dotenv": "^16.0.0",
+    "prisma": "^5.4.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
