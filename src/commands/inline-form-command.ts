@@ -164,14 +164,14 @@ export class InlineFormCommand extends BaseCommandHandler {
       }
     });
     
-    // 説明を薄い文字で表示
+    // 説明を表示
     if (tool?.description) {
       blocks.push({
-        type: 'context',
-        elements: [{
+        type: 'section',
+        text: {
           type: 'mrkdwn',
-          text: tool.description
-        }]
+          text: `_${tool.description}_`  // イタリック体で表示
+        }
       });
     }
     
@@ -195,7 +195,7 @@ export class InlineFormCommand extends BaseCommandHandler {
               block_id: `field_${key}`,
               text: {
                 type: 'mrkdwn',
-                text: `${key}${isRequired ? ' *' : ''}`
+                text: `*${key}*${isRequired ? ' *' : ''}`
               },
               accessory: {
                 type: 'static_select',
@@ -216,19 +216,11 @@ export class InlineFormCommand extends BaseCommandHandler {
           } else if (p.type === 'string') {
             // テキスト入力（複数行対応）
             blocks.push({
-              type: 'section',
-              block_id: `field_${key}`,
-              text: {
-                type: 'mrkdwn',
-                text: `${key}${isRequired ? ' *' : ''}`
-              }
-            });
-            blocks.push({
               type: 'input',
               block_id: `input_field_${key}`,
               label: {
                 type: 'plain_text',
-                text: ' ',  // 空白ラベルでコンパクトに
+                text: `${key}${isRequired ? ' *' : ''}`,
                 emoji: true
               },
               element: {
@@ -237,27 +229,23 @@ export class InlineFormCommand extends BaseCommandHandler {
                 multiline: true,  // 複数行入力を有効化
                 placeholder: {
                   type: 'plain_text',
-                  text: p.description || `${key}を入力してください`
+                  text: (p.description || `${key}を入力`).replace(/\n/g, ' ')  // 改行を削除
                 }
+              },
+              hint: {
+                type: 'plain_text',
+                text: 'Shift+Enterで改行できます'
               },
               optional: !isRequired
             });
           } else if (p.type === 'number' || p.type === 'float' || p.type === 'integer') {
             // 数値入力
             blocks.push({
-              type: 'section',
-              block_id: `field_${key}`,
-              text: {
-                type: 'mrkdwn',
-                text: `${key}${isRequired ? ' *' : ''}`
-              }
-            });
-            blocks.push({
               type: 'input',
               block_id: `input_field_${key}`,
               label: {
                 type: 'plain_text',
-                text: ' ',  // 空白ラベルでコンパクトに
+                text: `${key}${isRequired ? ' *' : ''}`,
                 emoji: true
               },
               element: {
@@ -265,7 +253,7 @@ export class InlineFormCommand extends BaseCommandHandler {
                 action_id: `input_${key}`,
                 placeholder: {
                   type: 'plain_text',
-                  text: p.description || `数値を入力してください`
+                  text: (p.description || `数値を入力`).replace(/\n/g, ' ')  // 改行を削除
                 }
               },
               optional: !isRequired
