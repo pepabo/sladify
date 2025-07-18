@@ -2,7 +2,7 @@
 
 SlackからDifyワークフローをインタラクティブに実行できるボットです。
 
-📖 **ユーザーガイド**: [日本語](./docs/USER_GUIDE.md) | [English](./docs/USER_GUIDE_EN.md)
+📖 **ユーザーガイド**: [日本語](./docs/USER_GUIDE.md)
 
 ## 機能
 
