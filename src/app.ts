@@ -25,7 +25,9 @@ const HELP_TEXT = `使い方:
 • \`@sladify help\` - このヘルプを表示
 
 注: パラメータが1つのワークフローは引数で直接実行できます。
-複数パラメータの場合はフォームを使用してください。`;
+複数パラメータの場合はフォームを使用してください。
+
+詳しい使い方: https://github.com/pepabo/sladify/blob/main/docs/USER_GUIDE.md`;
 
 export const app = new App({
   token: slackConfig.botToken,
