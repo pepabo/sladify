@@ -1,71 +1,12 @@
-# Dependencies
 node_modules/
-.pnpm-store/
-
-# Build outputs
 dist/
-build/
-*.tsbuildinfo
-
-# Environment variables
 .env
 .env.local
-.env.*.local
-
-# Logs
-logs/
 *.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-bot.log
-
-# OS files
 .DS_Store
-Thumbs.db
-
-# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Testing
-coverage/
-.vitest/
-
-# Database
 *.db
 *.db-journal
-*.sqlite
-*.sqlite3
-*.sqlite-journal
-*.db-wal
-*.sqlite-wal
-/data/
-
-# Temporary files
 tmp/
 temp/
-*.tmp
-*.temp
-.cache/
-
-# Backup files
-*.bak
-*.backup
-*~
-
-# Lock files (only exclude non-pnpm lock files)
-package-lock.json
-yarn.lock
-
-# TypeScript cache
-*.tscache
-
-# Prisma
-prisma/dev.db
-prisma/*.db
-prisma/*.db-journal

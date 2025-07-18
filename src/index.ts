@@ -1,12 +1,15 @@
 import { app } from './app.js';
-import { appConfig } from './config.js';
+import { closePrisma } from './services/command-handler.js';
 
-(async () => {
-  try {
-    await app.start();
-    console.log(`⚡️ Sladify bot is running in ${appConfig.env} mode`);
-  } catch (error) {
-    console.error('Failed to start app:', error);
-    process.exit(1);
-  }
-})();
+const start = async () => {
+  await app.start();
+  console.log('⚡️ Sladify bot is running');
+};
+
+start().catch(console.error);
+
+// グレースフルシャットダウン
+process.on('SIGINT', async () => {
+  await closePrisma();
+  process.exit(0);
+});
