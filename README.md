@@ -46,7 +46,7 @@ cp .env.example .env
 # 以下を編集
 SLACK_BOT_TOKEN=xoxb-xxx
 SLACK_APP_TOKEN=xapp-xxx
-DATABASE_URL=file:./data/sladify.db
+DATABASE_URL=file:./dev.db  # 開発環境
 DIFY_API_KEY=app-xxx
 DIFY_BASE_URL=https://api.dify.ai/v1
 ```
