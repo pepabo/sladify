@@ -299,8 +299,7 @@ export class InlineFormCommand extends BaseCommandHandler {
 
     await this.context.say({
       text: `${server.name} 実行フォーム`,
-      blocks,
-      thread_ts: this.context.event.ts
+      blocks
     });
   }
 
