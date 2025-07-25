@@ -7,7 +7,7 @@ export class ToolCommand extends BaseCommandHandler {
       const { name } = this.context.parsed;
       
       if (!name) {
-        throw new CommandError('使い方: `@sladify tool [MCPサーバー名]`');
+        throw new CommandError(':wave: 使い方: `@sladify tool [MCPサーバー名]`\n例: `@sladify tool my-tool`');
       }
 
       const server = await this.getServer(name);
@@ -17,7 +17,7 @@ export class ToolCommand extends BaseCommandHandler {
       const tools = await client.listTools();
 
       if (tools.length === 0) {
-        await this.reply(`MCPサーバー「${name}」にはツールがありません。`);
+        await this.reply(`:package: MCPサーバー「${name}」にはツールがないみたい。\n:bulb: サーバーを更新してみる？ \`@sladify update ${name}\``);
         return;
       }
 
@@ -26,17 +26,17 @@ export class ToolCommand extends BaseCommandHandler {
         const params = schema?.properties
           ? Object.entries(schema.properties)
               .map(([key, prop]: [string, any]) => {
-                const required = schema.required?.includes(key) ? '必須' : '任意';
+                const required = schema.required?.includes(key) ? ':exclamation: 必須' : ':white_circle: 任意';
                 const type = prop.type || 'any';
-                return `  - ${key} (${type}, ${required}): ${prop.description || ''}`;
+                return `  • ${key} (${type}, ${required}): ${prop.description || ''}`;
               })
               .join('\n')
-          : '  パラメータなし';
+          : '  :zero: パラメータなし';
 
-        return `*${tool.name}*\n${tool.description || '説明なし'}\nパラメータ:\n${params}`;
+        return `:toolbox: *${tool.name}*\n_${tool.description || '説明なし'}_\n\n:gear: パラメータ:\n${params}`;
       }).join('\n\n');
 
-      await this.reply(`MCPサーバー「${name}」のツール:\n\n${toolList}`);
+      await this.reply(`:sparkles: *MCPサーバー「${name}」のツール一覧*\n\n${toolList}\n\n:rocket: 実行するには \`@sladify ${name}\` と入力してね！`);
     });
   }
 }

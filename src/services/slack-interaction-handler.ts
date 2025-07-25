@@ -34,7 +34,7 @@ export class SlackInteractionHandler {
           await client.chat.postMessage({
             channel: blockAction.channel?.id || '',
             thread_ts: blockAction.message?.ts,
-            text: 'サーバーが見つかりませんでした。'
+            text: ':mag: サーバーが見つからなかったみたい... もう一度試してみて！'
           });
           return;
         }
@@ -81,7 +81,7 @@ export class SlackInteractionHandler {
         
         // ファイル関連の処理を削除（Dify MCPはファイル非対応）
         
-        // 実行中メッセージ（よりモダンなデザイン）
+        // 実行中メッセージ（よりポップでフレンドリーなデザイン）
         await client.chat.postMessage({
           channel: blockAction.channel?.id || '',
           thread_ts: blockAction.message?.ts,
@@ -91,7 +91,7 @@ export class SlackInteractionHandler {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `:hourglass_flowing_sand: *${server.name}を実行中...*`
+                text: `:rocket: *${server.name}を実行中...* がんばってるからちょっと待ってね！`
               }
             }
           ]
@@ -122,7 +122,7 @@ export class SlackInteractionHandler {
           }
         }
         
-        // 結果を表示（よりモダンなデザイン）
+        // 結果を表示（よりポップでフレンドリーなデザイン）
         if (hasError) {
           await client.chat.postMessage({
             channel: blockAction.channel?.id || '',
@@ -133,7 +133,7 @@ export class SlackInteractionHandler {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: `:x: *エラーが発生しました*\n\`\`\`${result}\`\`\``
+                  text: `:dizzy_face: *あらら、エラーが発生しちゃった...*\n\`\`\`${result}\`\`\`\n:bulb: もう一度試してみてね！`
                 }
               }
             ]
@@ -148,7 +148,7 @@ export class SlackInteractionHandler {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: `:white_check_mark: *実行結果*`
+                  text: `:tada: *実行完了！結果はこちら:*`
                 }
               },
               {
@@ -163,7 +163,7 @@ export class SlackInteractionHandler {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: `:white_check_mark: *実行完了*`
+                  text: `:sparkles: *実行完了したよ！*`
                 }
               }
             ]
@@ -175,7 +175,7 @@ export class SlackInteractionHandler {
         await client.chat.postMessage({
           channel: blockAction.channel?.id || '',
           thread_ts: blockAction.message?.ts,
-          text: `エラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+          text: `:dizzy_face: あらら、何か問題が発生しちゃった: ${error instanceof Error ? error.message : 'Unknown error'}\n:wrench: もう一度試してみてね！`
         });
       }
     });

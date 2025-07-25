@@ -34,12 +34,12 @@ export class UpdateCommand extends BaseCommandHandler {
       const { name } = this.context.parsed;
       
       if (!name) {
-        throw new CommandError('使い方: `@sladify update [MCPサーバー名]`');
+        throw new CommandError(':wave: 使い方: `@sladify update [MCPサーバー名]`\n例: `@sladify update my-tool`');
       }
 
       const server = await this.getServer(name);
       
-      await this.reply(`MCPサーバー「${name}」のツール情報を更新中...`);
+      await this.reply(`:arrows_counterclockwise: MCPサーバー「${name}」のツール情報を更新中... ちょっと待ってね！`);
 
       const client = this.createMCPClient(server.endpoint);
       await client.initialize();
@@ -49,8 +49,8 @@ export class UpdateCommand extends BaseCommandHandler {
       for (const tool of newTools) {
         if (this.hasFileField(tool)) {
           throw new CommandError(
-            `ツール「${tool.name}」にファイルフィールドが含まれています。\n` +
-            `DifyのMCPサーバーはファイルアップロードに対応していません。`
+            `:file_folder: おっと！ツール「${tool.name}」にファイルフィールドがあるみたい。\n` +
+            `:information_source: 残念ながらDifyのMCPサーバーはファイルアップロードに対応していないんだ。`
           );
         }
       }
@@ -78,17 +78,17 @@ export class UpdateCommand extends BaseCommandHandler {
       const added = newToolNames.filter(n => !oldToolNames.includes(n));
       const removed = oldToolNames.filter(n => !newToolNames.includes(n));
       
-      let message = `MCPサーバー「${name}」のツール情報を更新しました。\n`;
-      message += `ツール数: ${oldToolNames.length} → ${newToolNames.length}`;
+      let message = `:white_check_mark: MCPサーバー「${name}」のツール情報を更新したよ！\n`;
+      message += `:toolbox: ツール数: ${oldToolNames.length} → ${newToolNames.length}`;
       
       if (added.length > 0) {
-        message += `\n\n追加: ${added.join(', ')}`;
+        message += `\n\n:new: 追加: ${added.join(', ')}`;
       }
       if (removed.length > 0) {
-        message += `\n削除: ${removed.join(', ')}`;
+        message += `\n:wastebasket: 削除: ${removed.join(', ')}`;
       }
       if (added.length === 0 && removed.length === 0 && oldToolNames.length === newToolNames.length) {
-        message += '\n\n変更はありませんでした。';
+        message += '\n\n:ok_hand: 変更はなかったみたい！すべて最新だよ！';
       }
 
       await this.reply(message);

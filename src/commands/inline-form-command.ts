@@ -15,7 +15,7 @@ export class InlineFormCommand extends BaseCommandHandler {
       const { name, args } = this.context.parsed;
       
       if (!name) {
-        throw new CommandError('ワークフロー名を指定してください。');
+        throw new CommandError(':thinking_face: ワークフロー名を教えてね！\n例: `@sladify my-workflow`');
       }
 
       const server = await this.getServer(name);
@@ -48,8 +48,8 @@ export class InlineFormCommand extends BaseCommandHandler {
         } else if (paramCount > 1) {
           // パラメータが複数の場合はエラーメッセージとフォーム表示
           await this.reply(
-            `:warning: このワークフローには${paramCount}個のパラメータがあります。\n` +
-            `パラメータが複数ある場合は、引数なしで実行してフォームを使用してください。\n` +
+            `:sparkles: このワークフローには${paramCount}個のパラメータがあるよ！\n` +
+            `:point_right: パラメータが複数ある場合は、引数なしで実行してフォームを使ってね！\n` +
             `使い方: \`@sladify ${name}\``
           );
           await this.showInlineForm(server);
@@ -78,7 +78,7 @@ export class InlineFormCommand extends BaseCommandHandler {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `:hourglass_flowing_sand: *${server.name}を実行中...*`
+            text: `:rocket: *${server.name}を実行中...* がんばってるからちょっと待ってね！`
           }
         }
       ]
@@ -111,7 +111,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:x: *エラーが発生しました*\n\`\`\`${result}\`\`\``
+              text: `:dizzy_face: *あらら、エラーが発生しちゃった...*\n\`\`\`${result}\`\`\`\n:bulb: もう一度試してみてね！`
             }
           }
         ]
@@ -125,7 +125,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:white_check_mark: *実行結果*`
+              text: `:tada: *実行完了！結果はこちら:*`
             }
           },
           {
@@ -140,7 +140,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:white_check_mark: *実行完了*`
+              text: `:sparkles: *実行完了したよ！*`
             }
           }
         ]
@@ -155,12 +155,12 @@ export class InlineFormCommand extends BaseCommandHandler {
     const tool = server.tools[0];
     const blocks: any[] = [];
 
-    // よりモダンなヘッダーデザイン
+    // よりポップでフレンドリーなヘッダーデザイン
     blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `*${server.name}*`
+        text: `:star2: *${server.name}* :star2:`
       }
     });
     
@@ -170,7 +170,7 @@ export class InlineFormCommand extends BaseCommandHandler {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `_${tool.description}_`  // イタリック体で表示
+          text: `:memo: _${tool.description}_`  // イタリック体で表示
         }
       });
     }
@@ -202,7 +202,7 @@ export class InlineFormCommand extends BaseCommandHandler {
                 action_id: `select_${key}`,
                 placeholder: {
                   type: 'plain_text',
-                  text: '選択してください'
+                  text: '選んでね！ :point_down:'
                 },
                 options: p.enum.map((value: string) => ({
                   text: {
@@ -234,7 +234,7 @@ export class InlineFormCommand extends BaseCommandHandler {
               },
               hint: {
                 type: 'plain_text',
-                text: 'Shift+Enterで改行できます'
+                text: ':bulb: Shift+Enterで改行できるよ！'
               },
               optional: !isRequired
             });
@@ -273,7 +273,7 @@ export class InlineFormCommand extends BaseCommandHandler {
               type: 'button',
               text: {
                 type: 'plain_text',
-                text: '実行',
+                text: ':rocket: 実行する！',
                 emoji: true
               },
               style: 'primary',
@@ -291,7 +291,7 @@ export class InlineFormCommand extends BaseCommandHandler {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: 'フォームの生成に失敗しました。'
+            text: ':thinking_face: フォームの生成がうまくいかなかったみたい... もう一度試してみて！'
           }
         });
       }
@@ -331,7 +331,7 @@ export class InlineFormCommand extends BaseCommandHandler {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `:hourglass_flowing_sand: *${server.name}を実行中...*`
+            text: `:rocket: *${server.name}を実行中...* がんばってるからちょっと待ってね！`
           }
         }
       ]
@@ -364,7 +364,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:x: *エラーが発生しました*\n\`\`\`${result}\`\`\``
+              text: `:dizzy_face: *あらら、エラーが発生しちゃった...*\n\`\`\`${result}\`\`\`\n:bulb: もう一度試してみてね！`
             }
           }
         ]
@@ -378,7 +378,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:white_check_mark: *実行結果*`
+              text: `:tada: *実行完了！結果はこちら:*`
             }
           },
           {
@@ -393,7 +393,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:white_check_mark: *実行完了*`
+              text: `:sparkles: *実行完了したよ！*`
             }
           }
         ]

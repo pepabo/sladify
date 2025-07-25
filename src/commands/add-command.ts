@@ -34,15 +34,15 @@ export class AddCommand extends BaseCommandHandler {
       const { name, url } = this.context.parsed;
       
       if (!name || !url) {
-        throw new CommandError('使い方: `@sladify add [名前] [URL]`');
+        throw new CommandError(':wave: おっと！使い方はこうだよ: `@sladify add [名前] [URL]`\n例: `@sladify add my-tool https://example.com/mcp`');
       }
 
       if (isReservedCommand(name)) {
-        throw new CommandError(`「${name}」は予約されたコマンド名です。`);
+        throw new CommandError(`:no_entry_sign: 「${name}」は特別な名前だから使えないんだ。別の名前にしてみて！`);
       }
 
       if (!url.match(/^https?:\/\//)) {
-        throw new CommandError('HTTPまたはHTTPSで始まる有効なURLを指定してください。');
+        throw new CommandError(':link: URLは http:// か https:// で始まる必要があるよ！');
       }
 
       const existing = await this.prisma.mCPServer.findUnique({
@@ -50,7 +50,7 @@ export class AddCommand extends BaseCommandHandler {
       });
 
       if (existing) {
-        throw new CommandError(`MCPサーバー「${name}」は既に登録されています。`);
+        throw new CommandError(`:warning: 「${name}」という名前はもう使われているみたい！\n別の名前を試してみてね :sparkles:`);
       }
 
       const server = await this.prisma.mCPServer.create({
@@ -72,8 +72,8 @@ export class AddCommand extends BaseCommandHandler {
             });
             
             throw new CommandError(
-              `ツール「${tool.name}」にファイルフィールドが含まれています。\n` +
-              `DifyのMCPサーバーはファイルアップロードに対応していません。`
+              `:file_folder: おっと！ツール「${tool.name}」にファイルフィールドがあるみたい。\n` +
+              `:information_source: 残念ながらDifyのMCPサーバーはファイルアップロードに対応していないんだ。`
             );
           }
         }
@@ -89,7 +89,7 @@ export class AddCommand extends BaseCommandHandler {
           });
         }
 
-        await this.reply(`MCPサーバー「${name}」を登録しました。\nツール数: ${tools.length}`);
+        await this.reply(`:tada: やったね！MCPサーバー「${name}」を登録したよ！\n:toolbox: 使えるツール: ${tools.length}個\n\n:rocket: 実行するには \`@sladify ${name}\` と入力してね！`);
       } catch (error) {
         // エラーが発生した場合はサーバーを削除
         await this.prisma.mCPServer.delete({
@@ -99,7 +99,7 @@ export class AddCommand extends BaseCommandHandler {
         if (error instanceof CommandError) {
           throw error;
         }
-        throw new CommandError(`ツール情報の取得に失敗しました。`);
+        throw new CommandError(`:x: ツール情報の取得がうまくいかなかったみたい...\nURLが正しいか確認してみてね！`);
       }
     });
   }

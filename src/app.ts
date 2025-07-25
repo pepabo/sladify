@@ -14,20 +14,23 @@ import { UpdateCommand } from './commands/update-command.js';
 import { DeleteCommand } from './commands/delete-command.js';
 import { InlineFormCommand } from './commands/inline-form-command.js';
 
-const HELP_TEXT = `使い方:
-• \`@sladify add [名前] [URL]\` - MCPサーバーを登録
-• \`@sladify list\` - 登録済みサーバー一覧
-• \`@sladify tool [名前]\` - ツール情報を表示
-• \`@sladify update [名前]\` - ツール情報を更新
-• \`@sladify delete [名前]\` - MCPサーバーを削除
-• \`@sladify [名前]\` - ワークフローを実行（フォーム表示）
-• \`@sladify [名前] [値]\` - 単一パラメータのワークフローを直接実行
-• \`@sladify help\` - このヘルプを表示
+const HELP_TEXT = `*:wave: こんにちは！Sladifyです！* :sparkles:
 
-注: パラメータが1つのワークフローは引数で直接実行できます。
-複数パラメータの場合はフォームを使用してください。
+:rocket: *できること:*
+• \`@sladify add [名前] [URL]\` - 新しいMCPサーバーを追加するよ！
+• \`@sladify list\` - 登録済みのサーバーを見てみよう！
+• \`@sladify tool [名前]\` - ツールの詳細をチェック！
+• \`@sladify update [名前]\` - ツール情報を最新にアップデート！
+• \`@sladify delete [名前]\` - サーバーとお別れする時は...
+• \`@sladify [名前]\` - ワークフローを実行！（フォームが出るよ）
+• \`@sladify [名前] [値]\` - シンプルなワークフローは直接実行OK！
+• \`@sladify help\` - 困ったらまた呼んでね！
 
-詳しい使い方: https://github.com/pepabo/sladify/blob/main/docs/USER_GUIDE.md`;
+:bulb: *ワンポイント:*
+パラメータが1つだけのワークフローは引数で直接実行できちゃいます！
+複数ある場合は、わかりやすいフォームを使ってね :clipboard:
+
+:books: もっと詳しく知りたい？ https://github.com/pepabo/sladify/blob/main/docs/USER_GUIDE.md`;
 
 export const app = new App({
   token: slackConfig.botToken,

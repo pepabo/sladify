@@ -41,7 +41,7 @@ export abstract class BaseCommandHandler {
     });
 
     if (!server) {
-      throw new CommandError(`MCPサーバー「${name}」が見つかりません。`);
+      throw new CommandError(`:mag: MCPサーバー「${name}」が見つからないよ！\n:bulb: \`@sladify list\` で登録済みのサーバーを確認してみてね！`);
     }
 
     return server;
@@ -62,7 +62,7 @@ export abstract class BaseCommandHandler {
         await this.reply(error.message);
       } else {
         await this.reply(
-          `エラーが発生しました: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `:dizzy_face: あらら、何か問題が発生しちゃった: ${error instanceof Error ? error.message : 'Unknown error'}\n:wrench: もう一度試してみてね！`
         );
       }
     }
