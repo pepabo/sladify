@@ -1,102 +1,125 @@
-# Sladify - Slack Bot for Dify MCP Integration
+# Sladify - DifyワークフローをSlackボット化するプラットフォーム
 
-SlackからDifyワークフローをインタラクティブに実行できるボットです。
+Sladifyは、Difyで作成したAIワークフローを誰でも簡単にSlackボットとして公開・利用できるようにするプラットフォームです。
 
-📖 **ユーザーガイド**: [日本語](./docs/USER_GUIDE.md)
+## 🎯 なぜSladifyが必要か？
 
-## 機能
+### 現状の課題
+- Difyで素晴らしいAIワークフローを作っても、チームメンバーが使うには技術的なハードルがある
+- APIを叩いたり、専用のUIを作ったりする必要がある
+- 非技術者にとってはアクセスが困難
 
-### インタラクティブUI
-- **自動フォーム生成**: Difyワークフローの入力フィールドに基づいて、Slack用のフォームを自動生成
-- **スマートなUX**: 引数なしで実行するとフォーム表示、引数ありでダイレクト実行
-- **豊富な入力タイプサポート**:
-  - 短文（text-input）: 1行入力
-  - 段落（paragraph）: 複数行入力
-  - 数値（number/float）: 整数・小数の入力
-  - 選択（select）: ドロップダウンから選択
+### Sladifyが解決すること
+- **ノーコードでボット化**: DifyのワークフローURLを登録するだけでSlackボット化
+- **誰でも使える**: Slackでメンションするだけで高度なAI機能を利用可能
+- **リッチなUI**: パラメータ入力用のフォームを自動生成、使いやすいインターフェース
 
-### バリデーション
-- 必須フィールドチェック
-- 文字数制限
-- 数値範囲チェック
-- ファイルタイプ・サイズ検証
-- リアルタイムエラー表示
+## 🚀 主な特徴
 
-## 使い方
-
-### 基本コマンド
-```bash
-# MCPサーバー登録
-@sladify add weather https://api.dify.ai/v1/workflows/xxx
-
-# ワークフロー一覧
-@sladify list
-
-# インタラクティブ実行（フォーム表示）
-@sladify weather
-
-# ダイレクト実行（引数指定）
-@sladify weather location=Tokyo units=celsius
+### 1. 簡単なセットアップ
+Difyで作ったワークフローのURLを登録するだけ：
+```
+@sladify add translation-bot https://api.dify.ai/v1/workflows/xxx
 ```
 
-### セットアップ
+### 2. 自動的にリッチUIを生成
+- ワークフローの入力パラメータに基づいて、Slack用のフォームを自動生成
+- テキスト、数値、選択肢など、様々な入力タイプをサポート
+- 必須項目やバリデーションも自動設定
 
-1. 環境変数の設定
+### 3. 柔軟な実行方法
+- **フォーム実行**: `@sladify translation-bot` でインタラクティブなフォームを表示
+- **ダイレクト実行**: `@sladify translation-bot "Hello World"` で即座に実行
+
+## 📖 ドキュメント
+
+- **[ユーザーガイド](./docs/USER_GUIDE.md)**: エンドユーザー向けの使い方ガイド
+- **[管理者ガイド](./docs/ADMIN_GUIDE.md)**: ワークフローの登録・管理方法
+- **[開発者ガイド](./docs/DEVELOPER_GUIDE.md)**: セットアップとカスタマイズ
+
+## 💡 ユースケース
+
+### 1. 翻訳ボット
+Difyで多言語翻訳ワークフローを作成し、Slackから簡単に利用：
+```
+@sladify translate "こんにちは"
+→ Hello (English), 你好 (Chinese), Bonjour (French)
+```
+
+### 2. データ分析ボット
+複雑なデータ分析ワークフローも、フォーム入力で簡単実行：
+```
+@sladify analyze-sales
+→ [期間や対象を選択するフォームが表示]
+→ 分析結果をグラフ付きで返信
+```
+
+### 3. カスタマーサポートボット
+FAQや問い合わせ対応を自動化：
+```
+@sladify support "パスワードを忘れました"
+→ パスワードリセットの手順を説明
+```
+
+## 🛠️ クイックスタート
+
+### 前提条件
+- Node.js 18以上
+- Slack ワークスペースの管理者権限
+- Dify アカウントとAPIキー
+
+### インストール
+
+1. リポジトリをクローン
+```bash
+git clone https://github.com/your-org/sladify.git
+cd sladify
+```
+
+2. 環境変数を設定
 ```bash
 cp .env.example .env
-# 以下を編集
-SLACK_BOT_TOKEN=xoxb-xxx
-SLACK_APP_TOKEN=xapp-xxx
-DATABASE_URL=file:./dev.db  # 開発環境
-DIFY_API_KEY=app-xxx
-DIFY_BASE_URL=https://api.dify.ai/v1
+# .envファイルを編集して必要な情報を入力
 ```
 
-2. 依存関係インストール
+3. 依存関係をインストール
 ```bash
 npm install
 ```
 
-3. データベースセットアップ
+4. データベースをセットアップ
 ```bash
 npm run prisma:generate
 npm run prisma:migrate
 ```
 
-4. 起動
+5. 起動
 ```bash
 npm run dev
 ```
 
-## アーキテクチャ
+詳細なセットアップ手順は[開発者ガイド](./docs/DEVELOPER_GUIDE.md)を参照してください。
 
-### 主要コンポーネント
-- **InteractiveUIBuilder**: Slack Block Kit形式のフォーム生成
-- **DifyMetadataClient**: Difyワークフローのメタデータ取得
-- **ValidationService**: 入力値の検証
-- **FileUploadHandler**: ファイルアップロード処理
-- **SlackInteractionHandler**: ボタンクリックなどのインタラクション処理
+## 🏗️ アーキテクチャ
 
-### テスト
-```bash
-# テスト実行
-npm run test
+Sladifyは以下の技術スタックで構築されています：
 
-# カバレッジ付き
-npm run test:coverage
-```
+- **Backend**: Node.js + TypeScript
+- **Slack連携**: Bolt for JavaScript
+- **Dify連携**: REST API + MCP (Model Context Protocol)
+- **データベース**: SQLite (開発) / PostgreSQL (本番)
+- **UI生成**: Slack Block Kit
 
-## 開発状況
+## 🤝 コントリビューション
 
-✅ 実装済み
-- Slack Block KitによるインタラクティブUI
-- Difyワークフローメタデータ連携
-- 全入力タイプのサポート
-- バリデーション機能
-- ファイルアップロード処理
-- E2Eテスト
+プルリクエストを歓迎します！大きな変更を行う場合は、まずissueを作成して変更内容について議論してください。
 
-🚧 今後の予定
-- Dify実際のAPIエンドポイント確認
-- ストリーミングレスポンスの改善
-- 複数ワークフローの同時実行サポート
+## 📄 ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](./LICENSE)ファイルを参照してください。
+
+## 🙏 謝辞
+
+- [Dify](https://dify.ai/) - 素晴らしいワークフロー作成プラットフォーム
+- [Slack](https://slack.com/) - 最高のチームコミュニケーションツール
+- すべてのコントリビューターとユーザーの皆様
