@@ -232,10 +232,6 @@ export class InlineFormCommand extends BaseCommandHandler {
                   text: (p.description || `${key}を入力`).replace(/\n/g, ' ')  // 改行を削除
                 }
               },
-              hint: {
-                type: 'plain_text',
-                text: ':bulb: Shift+Enterで改行できるよ！'
-              },
               optional: !isRequired
             });
           } else if (p.type === 'number' || p.type === 'float' || p.type === 'integer') {
