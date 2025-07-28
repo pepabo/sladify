@@ -51,6 +51,7 @@ export abstract class BaseCommandHandler {
     return new MCPClient({
       endpoint,
       userId: this.context.event.user || 'unknown',
+      timeout: process.env.MCP_TIMEOUT ? parseInt(process.env.MCP_TIMEOUT) : undefined,
     });
   }
 

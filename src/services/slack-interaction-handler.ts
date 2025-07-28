@@ -1,6 +1,7 @@
 import { App, BlockAction } from '@slack/bolt';
 import { getPrisma } from './command-handler.js';
 import { MCPClient } from './mcp-client.js';
+import { markdownToSlack } from '../utils/markdown-to-slack.js';
 
 const prisma = getPrisma();
 
@@ -100,7 +101,8 @@ export class SlackInteractionHandler {
         // MCP実行処理
         const mcpClient = new MCPClient({
           endpoint: server.endpoint,
-          userId: blockAction.user.id
+          userId: blockAction.user.id,
+          timeout: process.env.MCP_TIMEOUT ? parseInt(process.env.MCP_TIMEOUT) : undefined
         });
         
         await mcpClient.initialize();
@@ -155,7 +157,7 @@ export class SlackInteractionHandler {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: result
+                  text: markdownToSlack(result)
                 }
               }
             ] : [

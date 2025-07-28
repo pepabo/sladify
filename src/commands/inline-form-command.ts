@@ -1,6 +1,7 @@
 import { App } from '@slack/bolt';
 import { BaseCommandHandler } from '../services/command-handler.js';
 import { CommandError } from '../types/index.js';
+import { markdownToSlack } from '../utils/markdown-to-slack.js';
 
 /**
  * メッセージ内で動作するインラインフォームコマンド
@@ -132,7 +133,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: result
+              text: markdownToSlack(result)
             }
           }
         ] : [
@@ -293,10 +294,18 @@ export class InlineFormCommand extends BaseCommandHandler {
       }
     }
 
-    await this.context.say({
+    // スレッド内でコマンドが実行された場合は、スレッド内にフォームを表示
+    const sayOptions: any = {
       text: `${server.name} 実行フォーム`,
       blocks
-    });
+    };
+    
+    // thread_tsが存在する場合は、同じスレッド内に返信
+    if (this.context.event.thread_ts) {
+      sayOptions.thread_ts = this.context.event.thread_ts;
+    }
+    
+    await this.context.say(sayOptions);
   }
 
   /**
@@ -381,7 +390,7 @@ export class InlineFormCommand extends BaseCommandHandler {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: result
+              text: markdownToSlack(result)
             }
           }
         ] : [

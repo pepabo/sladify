@@ -73,7 +73,7 @@ export class MCPClient {
         'Accept': 'text/event-stream',
       },
       body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(this.config.timeout || 30000),
+      signal: AbortSignal.timeout(this.config.timeout || 120000), // 2分に延長
     });
 
     if (!response.ok && response.status !== 200) {
