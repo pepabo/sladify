@@ -2,6 +2,7 @@ import { App } from '@slack/bolt';
 import { BaseCommandHandler } from '../services/command-handler.js';
 import { CommandError } from '../types/index.js';
 import { markdownToSlack } from '../utils/markdown-to-slack.js';
+import { createTextBlocks } from '../utils/slack-text-splitter.js';
 
 /**
  * メッセージ内で動作するインラインフォームコマンド
@@ -26,8 +27,6 @@ export class InlineFormCommand extends BaseCommandHandler {
       let paramCount = 0;
       let singleParamName: string | null = null;
       
-      console.log(`[DEBUG] Tool ${tool?.name} inputSchema:`, tool?.inputSchema);
-      
       if (tool?.inputSchema) {
         try {
           const schema = JSON.parse(tool.inputSchema);
@@ -35,15 +34,12 @@ export class InlineFormCommand extends BaseCommandHandler {
           const paramNames = Object.keys(properties);
           paramCount = paramNames.length;
           
-          console.log(`[DEBUG] Schema properties:`, properties);
-          console.log(`[DEBUG] Param count: ${paramCount}`);
-          
           if (paramCount === 1) {
             singleParamName = paramNames[0];
           }
         } catch (e) {
           // スキーマ解析エラー
-          console.error(`[DEBUG] Schema parse error:`, e);
+          console.error('Schema parse error:', e);
         }
       }
       
@@ -69,11 +65,9 @@ export class InlineFormCommand extends BaseCommandHandler {
         // 引数がない場合
         if (paramCount === 0 && tool?.inputSchema) {
           // propertiesが空のツールは直接実行
-          console.log(`[DEBUG] No params tool detected, executing directly`);
           await this.executeNoParams(server, tool);
         } else {
           // パラメータがある場合はフォームを表示
-          console.log(`[DEBUG] Showing form - paramCount: ${paramCount}`);
           await this.showInlineForm(server);
         }
       }
@@ -133,34 +127,30 @@ export class InlineFormCommand extends BaseCommandHandler {
         ]
       });
     } else {
-      await this.context.say({
-        text: result || '実行完了',
-        thread_ts: this.context.event.ts,
-        blocks: result ? [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `:tada: *実行完了！結果はこちら:*`
+      if (result) {
+        const convertedResult = markdownToSlack(result);
+        const blocks = createTextBlocks(convertedResult, ':tada: *実行完了！結果はこちら:*');
+        
+        await this.context.say({
+          text: '実行完了',
+          thread_ts: this.context.event.ts,
+          blocks: blocks
+        });
+      } else {
+        await this.context.say({
+          text: '実行完了',
+          thread_ts: this.context.event.ts,
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `:sparkles: *実行完了したよ！*`
+              }
             }
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: markdownToSlack(result)
-            }
-          }
-        ] : [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `:sparkles: *実行完了したよ！*`
-            }
-          }
-        ]
-      });
+          ]
+        });
+      }
     }
   }
 
@@ -168,9 +158,6 @@ export class InlineFormCommand extends BaseCommandHandler {
    * パラメータなしで実行
    */
   private async executeNoParams(server: any, tool: any): Promise<void> {
-    console.log(`[DEBUG] executeNoParams called for tool: ${tool.name}`);
-    console.log(`[DEBUG] Sending empty object {} as parameters`);
-    
     await this.context.say({
       text: `${server.name}を実行中...`,
       thread_ts: this.context.event.ts,
@@ -192,10 +179,8 @@ export class InlineFormCommand extends BaseCommandHandler {
     let result = '';
     let hasError = false;
     
-    // MCPサーバーによっては空オブジェクトではなく特定の形式を期待する場合がある
-    // Dify MCPの場合、inputsというキーが必要な可能性
+    // Dify MCPサーバー向けに{inputs: {}}形式でパラメータを送信
     const params = { inputs: {} };
-    console.log(`[DEBUG] Sending params:`, JSON.stringify(params));
     
     for await (const event of client.executeTool(tool.name, params)) {
       switch (event.type) {
@@ -227,34 +212,30 @@ export class InlineFormCommand extends BaseCommandHandler {
         ]
       });
     } else {
-      await this.context.say({
-        text: result || '実行完了',
-        thread_ts: this.context.event.ts,
-        blocks: result ? [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `:tada: *実行完了！結果はこちら:*`
+      if (result) {
+        const convertedResult = markdownToSlack(result);
+        const blocks = createTextBlocks(convertedResult, ':tada: *実行完了！結果はこちら:*');
+        
+        await this.context.say({
+          text: '実行完了',
+          thread_ts: this.context.event.ts,
+          blocks: blocks
+        });
+      } else {
+        await this.context.say({
+          text: '実行完了',
+          thread_ts: this.context.event.ts,
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `:sparkles: *実行完了したよ！*`
+              }
             }
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: markdownToSlack(result)
-            }
-          }
-        ] : [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `:sparkles: *実行完了したよ！*`
-            }
-          }
-        ]
-      });
+          ]
+        });
+      }
     }
   }
 
@@ -484,34 +465,30 @@ export class InlineFormCommand extends BaseCommandHandler {
         ]
       });
     } else {
-      await this.context.say({
-        text: result || '実行完了',
-        thread_ts: this.context.event.ts,
-        blocks: result ? [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `:tada: *実行完了！結果はこちら:*`
+      if (result) {
+        const convertedResult = markdownToSlack(result);
+        const blocks = createTextBlocks(convertedResult, ':tada: *実行完了！結果はこちら:*');
+        
+        await this.context.say({
+          text: '実行完了',
+          thread_ts: this.context.event.ts,
+          blocks: blocks
+        });
+      } else {
+        await this.context.say({
+          text: '実行完了',
+          thread_ts: this.context.event.ts,
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `:sparkles: *実行完了したよ！*`
+              }
             }
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: markdownToSlack(result)
-            }
-          }
-        ] : [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `:sparkles: *実行完了したよ！*`
-            }
-          }
-        ]
-      });
+          ]
+        });
+      }
     }
   }
 }

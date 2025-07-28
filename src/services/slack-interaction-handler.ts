@@ -2,6 +2,7 @@ import { App, BlockAction } from '@slack/bolt';
 import { getPrisma } from './command-handler.js';
 import { MCPClient } from './mcp-client.js';
 import { markdownToSlack } from '../utils/markdown-to-slack.js';
+import { createTextBlocks } from '../utils/slack-text-splitter.js';
 
 const prisma = getPrisma();
 
@@ -141,35 +142,32 @@ export class SlackInteractionHandler {
             ]
           });
         } else {
-          await client.chat.postMessage({
-            channel: blockAction.channel?.id || '',
-            thread_ts: blockAction.message?.ts,
-            text: result || '実行完了',
-            blocks: result ? [
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: `:tada: *実行完了！結果はこちら:*`
+          if (result) {
+            const convertedResult = markdownToSlack(result);
+            const blocks = createTextBlocks(convertedResult, ':tada: *実行完了！結果はこちら:*');
+            
+            await client.chat.postMessage({
+              channel: blockAction.channel?.id || '',
+              thread_ts: blockAction.message?.ts,
+              text: '実行完了',
+              blocks: blocks
+            });
+          } else {
+            await client.chat.postMessage({
+              channel: blockAction.channel?.id || '',
+              thread_ts: blockAction.message?.ts,
+              text: '実行完了',
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `:sparkles: *実行完了したよ！*`
+                  }
                 }
-              },
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: markdownToSlack(result)
-                }
-              }
-            ] : [
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: `:sparkles: *実行完了したよ！*`
-                }
-              }
-            ]
-          });
+              ]
+            });
+          }
         }
         
       } catch (error) {
