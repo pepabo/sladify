@@ -26,17 +26,24 @@ export class InlineFormCommand extends BaseCommandHandler {
       let paramCount = 0;
       let singleParamName: string | null = null;
       
+      console.log(`[DEBUG] Tool ${tool?.name} inputSchema:`, tool?.inputSchema);
+      
       if (tool?.inputSchema) {
         try {
           const schema = JSON.parse(tool.inputSchema);
           const properties = schema.properties || {};
           const paramNames = Object.keys(properties);
           paramCount = paramNames.length;
+          
+          console.log(`[DEBUG] Schema properties:`, properties);
+          console.log(`[DEBUG] Param count: ${paramCount}`);
+          
           if (paramCount === 1) {
             singleParamName = paramNames[0];
           }
-        } catch {
+        } catch (e) {
           // スキーマ解析エラー
+          console.error(`[DEBUG] Schema parse error:`, e);
         }
       }
       
@@ -60,14 +67,10 @@ export class InlineFormCommand extends BaseCommandHandler {
         }
       } else {
         // 引数がない場合
-        if (paramCount === 0 && tool?.inputSchema) {
-          // スキーマが明示的に存在してパラメータが0の場合のみ直接実行
-          // スキーマがnullまたは未定義の場合はフォームを表示（安全側に倒す）
-          await this.executeNoParams(server, tool);
-        } else {
-          // パラメータがある場合、またはスキーマが不明な場合はインラインフォームを表示
-          await this.showInlineForm(server);
-        }
+        // とりあえず、引数なし実行は無効化してフォームを常に表示
+        // TODO: MCPサーバー側の仕様を確認して適切に対応
+        console.log(`[DEBUG] No args provided, showing form for safety`);
+        await this.showInlineForm(server);
       }
     });
   }
@@ -160,6 +163,9 @@ export class InlineFormCommand extends BaseCommandHandler {
    * パラメータなしで実行
    */
   private async executeNoParams(server: any, tool: any): Promise<void> {
+    console.log(`[DEBUG] executeNoParams called for tool: ${tool.name}`);
+    console.log(`[DEBUG] Sending empty object {} as parameters`);
+    
     await this.context.say({
       text: `${server.name}を実行中...`,
       thread_ts: this.context.event.ts,
