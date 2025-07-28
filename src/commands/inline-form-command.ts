@@ -67,10 +67,15 @@ export class InlineFormCommand extends BaseCommandHandler {
         }
       } else {
         // 引数がない場合
-        // とりあえず、引数なし実行は無効化してフォームを常に表示
-        // TODO: MCPサーバー側の仕様を確認して適切に対応
-        console.log(`[DEBUG] No args provided, showing form for safety`);
-        await this.showInlineForm(server);
+        if (paramCount === 0 && tool?.inputSchema) {
+          // propertiesが空のツールは直接実行
+          console.log(`[DEBUG] No params tool detected, executing directly`);
+          await this.executeNoParams(server, tool);
+        } else {
+          // パラメータがある場合はフォームを表示
+          console.log(`[DEBUG] Showing form - paramCount: ${paramCount}`);
+          await this.showInlineForm(server);
+        }
       }
     });
   }
@@ -187,7 +192,12 @@ export class InlineFormCommand extends BaseCommandHandler {
     let result = '';
     let hasError = false;
     
-    for await (const event of client.executeTool(tool.name, {})) {
+    // MCPサーバーによっては空オブジェクトではなく特定の形式を期待する場合がある
+    // Dify MCPの場合、inputsというキーが必要な可能性
+    const params = { inputs: {} };
+    console.log(`[DEBUG] Sending params:`, JSON.stringify(params));
+    
+    for await (const event of client.executeTool(tool.name, params)) {
       switch (event.type) {
         case 'chunk':
           if (event.data) {
