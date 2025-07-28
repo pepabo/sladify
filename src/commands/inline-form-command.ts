@@ -60,11 +60,12 @@ export class InlineFormCommand extends BaseCommandHandler {
         }
       } else {
         // 引数がない場合
-        if (paramCount === 0) {
-          // パラメータがないツールは直接実行
+        if (paramCount === 0 && tool?.inputSchema) {
+          // スキーマが明示的に存在してパラメータが0の場合のみ直接実行
+          // スキーマがnullまたは未定義の場合はフォームを表示（安全側に倒す）
           await this.executeNoParams(server, tool);
         } else {
-          // パラメータがある場合はインラインフォームを表示
+          // パラメータがある場合、またはスキーマが不明な場合はインラインフォームを表示
           await this.showInlineForm(server);
         }
       }
