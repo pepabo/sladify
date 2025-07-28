@@ -59,8 +59,14 @@ export class InlineFormCommand extends BaseCommandHandler {
           await this.executeWithArgs(server, args);
         }
       } else {
-        // 引数がない場合はインラインフォームを表示
-        await this.showInlineForm(server);
+        // 引数がない場合
+        if (paramCount === 0) {
+          // パラメータがないツールは直接実行
+          await this.executeNoParams(server, tool);
+        } else {
+          // パラメータがある場合はインラインフォームを表示
+          await this.showInlineForm(server);
+        }
       }
     });
   }
@@ -99,6 +105,92 @@ export class InlineFormCommand extends BaseCommandHandler {
         hasError = true;
         result = event.error || 'Unknown error';
         break;
+      }
+    }
+    
+    // 結果を表示
+    if (hasError) {
+      await this.context.say({
+        text: 'エラーが発生しました',
+        thread_ts: this.context.event.ts,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `:dizzy_face: *あらら、エラーが発生しちゃった...*\n\`\`\`${result}\`\`\`\n:bulb: もう一度試してみてね！`
+            }
+          }
+        ]
+      });
+    } else {
+      await this.context.say({
+        text: result || '実行完了',
+        thread_ts: this.context.event.ts,
+        blocks: result ? [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `:tada: *実行完了！結果はこちら:*`
+            }
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: markdownToSlack(result)
+            }
+          }
+        ] : [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `:sparkles: *実行完了したよ！*`
+            }
+          }
+        ]
+      });
+    }
+  }
+
+  /**
+   * パラメータなしで実行
+   */
+  private async executeNoParams(server: any, tool: any): Promise<void> {
+    await this.context.say({
+      text: `${server.name}を実行中...`,
+      thread_ts: this.context.event.ts,
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `:rocket: *${server.name}を実行中...* がんばってるからちょっと待ってね！`
+          }
+        }
+      ]
+    });
+    
+    // MCP実行処理
+    const client = this.createMCPClient(server.endpoint);
+    await client.initialize();
+    
+    let result = '';
+    let hasError = false;
+    
+    for await (const event of client.executeTool(tool.name, {})) {
+      switch (event.type) {
+        case 'chunk':
+          if (event.data) {
+            result += event.data;
+          }
+          break;
+        case 'error':
+          hasError = true;
+          result = event.error || 'Unknown error';
+          break;
       }
     }
     

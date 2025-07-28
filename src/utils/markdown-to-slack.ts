@@ -1,4 +1,28 @@
 export function markdownToSlack(markdown: string): string {
+  // まず、入力がJSON形式かチェック
+  try {
+    const parsed = JSON.parse(markdown);
+    // JSONオブジェクトの場合、キー・バリュー形式で整形
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      const entries = Object.entries(parsed);
+      return entries.map(([key, value]) => {
+        // キーを太字で表示
+        const formattedKey = `*${key}*`;
+        // 値が文字列の場合はMarkdown変換を適用
+        const formattedValue = typeof value === 'string' 
+          ? convertMarkdownToSlack(value)
+          : String(value);
+        return `${formattedKey}\n\n${formattedValue}`;
+      }).join('\n\n');
+    }
+  } catch {
+    // JSONパースに失敗した場合は通常のMarkdown変換を行う
+  }
+  
+  return convertMarkdownToSlack(markdown);
+}
+
+function convertMarkdownToSlack(markdown: string): string {
   let slackText = markdown;
   
   // Bold - convert ** to * first
