@@ -25,12 +25,11 @@ export function markdownToSlack(markdown: string): string {
 function convertMarkdownToSlack(markdown: string): string {
   let slackText = markdown;
   
-  // Bold - convert ** to * first
+  // Bold - convert ** to * (Markdown bold to Slack bold)
   slackText = slackText.replace(/\*\*(.+?)\*\*/g, '*$1*');
   
-  // Italic - convert single * or _ to _
-  slackText = slackText.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '_$1_');
-  slackText = slackText.replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, '_$1_');
+  // Note: Slackでは既に *text* = bold, _text_ = italic なので、
+  // 単独の * はそのまま残す（Slack形式として正しい）
   
   // Headers - Slack doesn't support headers, so just make them bold
   // Do this after italic conversion to avoid conflicts
